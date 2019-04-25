@@ -235,7 +235,7 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
       '&key=',pkg.env$GX_API_KEY)
     download.file(url,download_path,quiet=TRUE) # Download the file
   }
-  return(file_path)
+  return(download_path)
 }
 
 
