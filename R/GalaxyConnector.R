@@ -224,13 +224,16 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
   encoded_dataset_id <- hist_datasets[hist_datasets$hid==file_id,'id']
   dataset_details <- gx_show_dataset(encoded_dataset_id)
 
+  # Let's name our dataset its actual name.. not its hid
+  download_path <- file.path(gx_get_import_directory(create=create), dataset_details$name)
+
   if( dataset_details$state == 'ok' ){
     url <- paste0(
       pkg.env$GX_URL,'api/histories/',pkg.env$GX_HISTORY_ID,
       '/contents/',encoded_dataset_id,'/display',
       '?to_ext=',dataset_details$extension,
       '&key=',pkg.env$GX_API_KEY)
-    download.file(url,file_path,quiet=TRUE)
+    download.file(url,download_path,quiet=TRUE) # Download the file
   }
   return(file_path)
 }
