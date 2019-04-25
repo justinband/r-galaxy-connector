@@ -1,6 +1,7 @@
 Package: GalaxyConnector
 Type: Package
 Title: Provides Galaxy Upload/Download
+Encoding: UTF-8
 Version: 0.3
 Date: 2015-09-28
 Author: Jelle Scholtalbers
@@ -11,3 +12,4 @@ License: GPL (>= 2)
 LazyData: TRUE
 Imports: stringr, RCurl, jsonlite
 Depends: R (>= 3.2)
+RoxygenNote: 6.1.1
