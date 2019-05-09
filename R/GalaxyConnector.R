@@ -18,6 +18,8 @@ pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 #' @param HISTORY_ID, the Galaxy history id to work on
 #' @param IMPORT_DIRECTORY, default '/tmp/<username>/galaxy_import'
 #' @param TMP_DIRECTORY, default '/tmp/<username>/galaxy_import/tmp'
+#'
+#' @export
 
 gx_init <- function(API_KEY=NULL, GALAXY_URL=NULL, HISTORY_ID=NULL,
                        IMPORT_DIRECTORY=NULL, TMP_DIRECTORY=NULL){
@@ -72,6 +74,8 @@ check_url_and_key <- function(){
 #'
 #' @param directory, the directory to check
 #' @param create, directory if true
+#'
+#' @export
 
 directory_exists <- function(directory,create='FALSE'){
   # ensure directory exists
@@ -90,6 +94,8 @@ directory_exists <- function(directory,create='FALSE'){
 #' This function returns the import directory to work with
 #'
 #' @param create, if TRUE, create import directory if it does not exist
+#'
+#' @export
 
 gx_get_import_directory <- function(create=FALSE){
   if(is.na(pkg.env$GX_IMPORT_DIRECTORY)){
@@ -105,6 +111,8 @@ gx_get_import_directory <- function(create=FALSE){
 #'
 #' @param IMPORT_DIRECTORY, path to use as import directory, default /tmp/<username>/galaxy_import
 #' @param create, default FALSE. If TRUE, try to create the directory if it doesn't exist
+#'
+#' @exoport
 
 gx_set_import_directory <- function(IMPORT_DIRECTORY=NULL,create=FALSE){
   if(is.null(IMPORT_DIRECTORY)){
@@ -121,6 +129,8 @@ gx_set_import_directory <- function(IMPORT_DIRECTORY=NULL,create=FALSE){
 #' This function returns the tmp directory to work with
 #'
 #' @param create, if TRUE, create import directory if it does not exist
+#'
+#' @export
 
 gx_get_tmp_directory <- function(create=FALSE){
   if(is.na(pkg.env$GX_TMP_DIRECTORY)){
@@ -135,6 +145,8 @@ gx_get_tmp_directory <- function(create=FALSE){
 #'
 #' @param TMP_DIRECTORY, path to use as tmp directory, default $GX_IMPORT_DIRECTORY/tmp
 #' @param create, default FALSE. If TRUE, try to create the directory if it doesn't exist
+#'
+#' @export
 
 gx_set_tmp_directory <- function(TMP_DIRECTORY=NULL,create=FALSE){
   if(is.null(TMP_DIRECTORY)){
@@ -152,6 +164,8 @@ gx_set_tmp_directory <- function(TMP_DIRECTORY=NULL,create=FALSE){
 #' @param filepath, Path to file
 #' @param filename, Name of the file to display in Galaxy
 #' @param file_type, auto-detect otherwise
+#'
+#' @export
 
 gx_put <- function(filepath, filename='', file_type="auto"){
   check_url_and_key()
@@ -180,6 +194,8 @@ gx_put <- function(filepath, filename='', file_type="auto"){
 #' gx_list_history_datasets
 #'
 #' List datasets from the current history id
+#'
+#' @export
 
 gx_list_history_datasets <- function(){
   check_url_and_key()
@@ -194,6 +210,8 @@ gx_list_history_datasets <- function(){
 #' Show dataset info based
 #'
 #' @param dataset_encoded_id, the encoded dataset id which you can get from gx_list_history_datasets()
+#'
+#' @export
 
 gx_show_dataset <- function(dataset_encoded_id){
   check_url_and_key()
@@ -212,6 +230,8 @@ gx_show_dataset <- function(dataset_encoded_id){
 #' @param file_id, ID number
 #' @param create, if TRUE, create import directory if it does not exist
 #' @param force, if TRUE, will download the file even if it already exists locally
+#'
+#' @export
 
 gx_get <- function(file_id,create=FALSE,force=FALSE){
   check_url_and_key()
@@ -244,6 +264,8 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
 #' Save the notebook .RData and .RHistory to Galaxy. Convenience function which wraps save.image and gx_put
 #'
 #' @param session_name, default "workspace"
+#'
+#' @export
 
 gx_save <- function(session_name="workspace"){
   check_url_and_key()
@@ -263,6 +285,8 @@ gx_save <- function(session_name="workspace"){
 #'
 #' @param rdata_id, .RData ID number
 #' @param rhistory_id, .RHistory ID number
+#'
+#' @export
 
 gx_restore <- function(rdata_id,rhistory_id){
   check_url_and_key()
@@ -275,6 +299,8 @@ gx_restore <- function(rdata_id,rhistory_id){
 #' gx_latest_history
 #'
 #' Uses the Galaxy API histories/most_recently_used to get the last updated history
+#'
+#' @export
 
 gx_latest_history <- function(){
   check_url_and_key()
@@ -289,6 +315,8 @@ gx_latest_history <- function(){
 #' Convenience method to set the current history id in the environment setting
 #'
 #' @param HISTORY_ID, the Galaxy history id to work on
+#'
+#' @export
 
 gx_switch_history <- function(HISTORY_ID){
   check_url_and_key()
@@ -301,6 +329,8 @@ gx_switch_history <- function(HISTORY_ID){
 #' Show the name of the current history
 #'
 #' @param full, if True, return a list with some history details
+#'
+#' @export
 
 gx_current_history <- function(full=FALSE){
   check_url_and_key()
@@ -315,6 +345,8 @@ gx_current_history <- function(full=FALSE){
 #' gx_list_histories
 #'
 #' List all Galaxy histories of the current user
+#'
+#' @export
 
 gx_list_histories <- function(){
   check_url_and_key()
