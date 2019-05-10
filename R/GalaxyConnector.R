@@ -21,12 +21,6 @@ pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 #'
 #' @export
 
-# Load or install stringr
-if(!require(stringr)){
-  install.packages("stringr")
-  library(stringr)
-}
-
 gx_init <- function(API_KEY=NULL, GALAXY_URL=NULL, HISTORY_ID=NULL,
                        IMPORT_DIRECTORY=NULL, TMP_DIRECTORY=NULL){
   if(!is.null(API_KEY)){
@@ -35,19 +29,20 @@ gx_init <- function(API_KEY=NULL, GALAXY_URL=NULL, HISTORY_ID=NULL,
     stop("You have not set your API Key")
   }
 
+  # Can the url checks be substituted for if(RCurl::url.exists(url))???
   if(!is.null(GALAXY_URL)){
-    pkg.env$GX_URL <- GALAXY_URL
+    if(substr(GALAXY_URL, start=nchar(GALAXY_URL), stop=nchar(GALAXY_URL)) != '/'){ # Does it have a slash at the end
+      pkg.env$GX_URL <- paste0(pkg.env$GX_URL, '/') # add a slash
+    } else if(substr(GALAXY_URL, start=0, end=4) != 'http'){ # Does it have a protocol?
+      pkg.env$GX_URL <- paste0('http://', pkg.env$GX_URL) # add a protocol
+      message(cat("Galaxy url was not prepended by the protocol, I constructed this url:",pkg.env$GX_URL))
+    } else {
+      pkg.env$GX_URL <- GALAXY_URL
+    }
   } else if (is.null(GALAXY_URL) && is.na(pkg.env$GX_URL)){
       stop("You have not specified a Galaxy Url, please do so.")
   }
-  # horrible method to check for correct url construction, please fix
-  if ( str_sub(pkg.env$GX_URL,-1) != '/' ){
-    pkg.env$GX_URL <- paste0(pkg.env$GX_URL,'/')
-  }
-  if( str_sub(pkg.env$GX_URL,start=0,4) != 'http'){
-    pkg.env$GX_URL <- paste0('http://',pkg.env$GX_URL)
-    message(cat("Galaxy url was not prepended by the protocol, I constructed this url:",pkg.env$GX_URL))
-  }
+
 
   if(!is.null(HISTORY_ID)){
     pkg.env$GX_HISTORY_ID <- HISTORY_ID
