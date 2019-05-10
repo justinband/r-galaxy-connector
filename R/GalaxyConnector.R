@@ -21,6 +21,12 @@ pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 #'
 #' @export
 
+# Load or install stringr
+if(!require(stringr)){
+  install.packages("stringr")
+  library(stringr)
+}
+
 gx_init <- function(API_KEY=NULL, GALAXY_URL=NULL, HISTORY_ID=NULL,
                        IMPORT_DIRECTORY=NULL, TMP_DIRECTORY=NULL){
   if(!is.null(API_KEY)){
