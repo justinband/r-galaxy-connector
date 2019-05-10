@@ -33,7 +33,7 @@ gx_init <- function(API_KEY=NULL, GALAXY_URL=NULL, HISTORY_ID=NULL,
   if(!is.null(GALAXY_URL)){
     if(substr(GALAXY_URL, start=nchar(GALAXY_URL), stop=nchar(GALAXY_URL)) != '/'){ # Does it have a slash at the end
       pkg.env$GX_URL <- paste0(pkg.env$GX_URL, '/') # add a slash
-    } else if(substr(GALAXY_URL, start=0, end=4) != 'http'){ # Does it have a protocol?
+    } else if(substr(GALAXY_URL, start=0, stop=4) != 'http'){ # Does it have a protocol?
       pkg.env$GX_URL <- paste0('http://', pkg.env$GX_URL) # add a protocol
       message(cat("Galaxy url was not prepended by the protocol, I constructed this url:",pkg.env$GX_URL))
     } else {
