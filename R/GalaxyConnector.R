@@ -8,6 +8,7 @@ pkg.env$GX_HISTORY_ID <- Sys.getenv('GX_HISTORY_ID', unset=NA)
 pkg.env$GX_IMPORT_DIRECTORY <- Sys.getenv('GX_IMPORT_DIRECTORY', unset=NA)
 pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 
+# Added dependency for jsonlite
 if(!require(curl)){
 	install.packages('curl')
 }
@@ -240,17 +241,24 @@ gx_show_dataset <- function(dataset_encoded_id){
 
 gx_get <- function(file_id,create=FALSE,force=FALSE){
   check_url_and_key()
-  file_path = file.path(gx_get_import_directory(create=create), file_id)
-  if( !force && file.exists(file_path)){
-    message("You already downloaded this file, use force=TRUE to overwrite")
-    return(file_path)
-  }
+  #file_path = file.path(gx_get_import_directory(create=create), file_id)
+
   hist_datasets <- gx_list_history_datasets()
   encoded_dataset_id <- hist_datasets[hist_datasets$hid==file_id,'id']
   dataset_details <- gx_show_dataset(encoded_dataset_id)
 
-  # Let's name our dataset its actual name.. not its hid
-  download_path <- file.path(gx_get_import_directory(create=create), dataset_details$name)
+  name <- dataset_details$name
+  hid <- dataset_details$hid
+
+  file_path = file.path(gx_get_import_directory(create=create), hid, name)
+  file_dir <- file.path(gx_get_import_directory(), hid)
+
+  if(!dir.exists(file_dir)) { dir.create(file_dir) }
+
+  if(!force && file.exists(file_path)){
+    message("You already downloaded this file, use force=TRUE to overwrite")
+    return(file_path)
+  }
 
   if( dataset_details$state == 'ok' ){
     url <- paste0(
@@ -258,9 +266,9 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
       '/contents/',encoded_dataset_id,'/display',
       '?to_ext=',dataset_details$extension,
       '&key=',pkg.env$GX_API_KEY)
-    download.file(url,download_path,quiet=TRUE) # Download the file
+    download.file(url,file_path,quiet=TRUE) # Download the file
   }
-  return(download_path)
+  return(file_path)
 }
 
 
