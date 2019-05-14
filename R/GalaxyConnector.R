@@ -8,6 +8,10 @@ pkg.env$GX_HISTORY_ID <- Sys.getenv('GX_HISTORY_ID', unset=NA)
 pkg.env$GX_IMPORT_DIRECTORY <- Sys.getenv('GX_IMPORT_DIRECTORY', unset=NA)
 pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 
+if(!require(curl)){
+	install.packages('curl')
+}
+
 #' gx_init
 #'
 #' Function that graps any environment/default settings to set for this session
