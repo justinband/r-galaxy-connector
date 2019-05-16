@@ -8,9 +8,16 @@ pkg.env$GX_HISTORY_ID <- Sys.getenv('GX_HISTORY_ID', unset=NA)
 pkg.env$GX_IMPORT_DIRECTORY <- Sys.getenv('GX_IMPORT_DIRECTORY', unset=NA)
 pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 
-# Added dependency for jsonlite
+# Check if curl dependency exists for jsonlite
 if(!require(curl)){
 	install.packages('curl')
+  library(curl)
+}
+
+# If jsonlite isn't installed then let's install it!
+if(!require(jsonlite)){
+  install.packages('jsonlite')
+  library(jsonlite)
 }
 
 #' gx_init
