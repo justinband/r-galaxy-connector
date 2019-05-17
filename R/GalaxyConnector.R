@@ -304,7 +304,11 @@ gx_get_collection <- function(file_id, hist_datasets, create=FALSE, force=FALSE)
         file_path <- file.path(gx_get_import_directory(create=create), file_id, name)
 
         gx_download_file(encoded_dataset_id, file_path, force) # This is returned on last iteration
+
       }
+
+      return(file_path)
+
     } else {
       message("The data from this collection doesn't exist outside of the collection in this history") # Need to look into this!
       message("Please copy data into history first, then create a collection")
