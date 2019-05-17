@@ -265,7 +265,8 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
 
       if(!dir.exists(file_dir)) { dir.create(file_dir) }
 
-      return(gx_download_file(encoded_dataset_id, file_path, force)) # gx_download_file returns a file path
+      gx_download_file(encoded_dataset_id, file_path, force)# gx_download_file returns a file path
+      return(file_path)
     }
   } else {
     message(paste0("dataset #", file_id, " does not exist, please try again"))
