@@ -248,33 +248,96 @@ gx_show_dataset <- function(dataset_encoded_id){
 
 gx_get <- function(file_id,create=FALSE,force=FALSE){
   check_url_and_key()
-  #file_path = file.path(gx_get_import_directory(create=create), file_id)
-
   hist_datasets <- gx_list_history_datasets()
-  encoded_dataset_id <- hist_datasets[hist_datasets$hid==file_id,'id']
+
+  if(0 < file_id && file_id <= nrow(hist_datasets)){
+    data_type <- hist_datasets[hist_datasets$hid == file_id, 'type'] # Check if it's a collection or not
+
+    if(data_type == 'collection'){
+      return(gx_get_collection(file_id, hist_datasets)) # get_collection calls gx_download_file which returns a file path
+    } else {
+      encoded_dataset_id <- hist_datasets[hist_datasets$hid==file_id,'id']
+      name <- hist_datasets[hist_datasets$hid==file_id, 'name']
+      hid <- hist_datasets[hist_datasets$hid==file_id, 'hid']
+
+      file_path <- file.path(gx_get_import_directory(create=create), hid, name)
+      file_dir <- file.path(gx_get_import_directory(), hid)
+
+      if(!dir.exists(file_dir)) { dir.create(file_dir) }
+
+      return(gx_download_file(encoded_dataset_id, file_path, force)) # gx_download_file returns a file path
+    }
+  } else {
+    message(paste0("dataset #", file_id, " does not exist, please try again"))
+  }
+}
+
+#' gx_get_collection
+#'
+#' Correctly download the collection data into directories similar to gx_get()
+#' gx_get is the parent call, in gx_get is where file_id is detemined to be a collection or not
+#' If the file_id is a collection then this function will be called.
+#'
+#' @param file_id, ID number
+#' @param hist_datasets, table of all dataset info
+#' @param create, if TRUE, create import directory if it does not exist
+#' @param force, if TRUE, will download the file even if it already exists locally
+#'
+
+gx_get_collection <- function(file_id, hist_datasets, create=FALSE, force=FALSE){
+
+  file_dir <- file.path(gx_get_import_directory(), file_id) # Download directory
+  if(!dir.exists(file_dir)) { dir.create(file_dir) } # Does the dir exist? No then let's make it!
+
+  is_populated <- hist_datasets[hist_datasets$hid == file_id, 'populated']
+
+  if(is_populated){ # Check if data exists in the collection
+    count <- hist_datasets[hist_datasets$hid == file_id, 'element_count'] # grab the # of elements the collection contains
+    start_pos <- file_id - count # THIS WILL BREAK IF COLLECTION IS AT THE START
+
+    # THIS WILL PROBABLY BREAK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ####
+    if(start_pos > 0){
+      for(pos in seq(start_pos, file_id-1)){ # We do -1 so we don't include the collection
+        encoded_dataset_id <- hist_datasets[hist_datasets$hid==pos,'id']
+        name <- hist_datasets[hist_datasets$hid==pos, 'name']
+
+        file_path <- file.path(gx_get_import_directory(create=create), file_id, name)
+
+        gx_download_file(encoded_dataset_id, file_path, force) # This is returned on last iteration
+      }
+    } else {
+      message("The data from this collection doesn't exist outside of the collection in this history") # Need to look into this!
+      message("Please copy data into history first, then create a collection")
+    }
+  }
+}
+
+#' gx_download_file
+#'
+#' Download a file from
+#'
+#' @param encoded_dataset_id, the data's encoded IDs
+#' @param file_path, path to download to
+#' @param force, force the download?
+#'
+
+gx_download_file <- function(encoded_dataset_id, file_path, force){
   dataset_details <- gx_show_dataset(encoded_dataset_id)
-
-  name <- dataset_details$name
-  hid <- dataset_details$hid
-
-  file_path = file.path(gx_get_import_directory(create=create), hid, name)
-  file_dir <- file.path(gx_get_import_directory(), hid)
-
-  if(!dir.exists(file_dir)) { dir.create(file_dir) }
 
   if(!force && file.exists(file_path)){
     message("You already downloaded this file, use force=TRUE to overwrite")
-    return(file_path)
   }
 
-  if( dataset_details$state == 'ok' ){
+  if(dataset_details$state == 'ok' ){
     url <- paste0(
       pkg.env$GX_URL,'api/histories/',pkg.env$GX_HISTORY_ID,
       '/contents/',encoded_dataset_id,'/display',
       '?to_ext=',dataset_details$extension,
       '&key=',pkg.env$GX_API_KEY)
-    download.file(url,file_path,quiet=TRUE) # Download the file
+
+    download.file(url, file_path, quiet=TRUE) # Download the file
   }
+
   return(file_path)
 }
 
