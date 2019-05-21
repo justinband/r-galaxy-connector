@@ -290,29 +290,48 @@ gx_get_collection <- function(file_id, hist_datasets, create=FALSE, force=FALSE)
   file_dir <- file.path(gx_get_import_directory(), file_id) # Download directory
   if(!dir.exists(file_dir)) { dir.create(file_dir) } # Does the dir exist? No then let's make it!
 
-  is_populated <- hist_datasets[hist_datasets$hid == file_id, 'populated']
+  verified <- gx_verify_collection(file_id, hist_datasets)
 
-  if(is_populated){ # Check if data exists in the collection
-    count <- hist_datasets[hist_datasets$hid == file_id, 'element_count'] # grab the # of elements the collection contains
-    start_pos <- file_id - count # THIS WILL BREAK IF COLLECTION IS AT THE START
+  if(verified > -1){
+    for(pos in seq(verified, file_id-1)){ # We do -1 so we don't include the collection
+      encoded_dataset_id <- hist_datasets[hist_datasets$hid==pos,'id']
+      name <- hist_datasets[hist_datasets$hid==pos, 'name']
 
-    # THIS WILL PROBABLY BREAK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ####
-    if(start_pos > 0){
-      for(pos in seq(start_pos, file_id-1)){ # We do -1 so we don't include the collection
-        encoded_dataset_id <- hist_datasets[hist_datasets$hid==pos,'id']
-        name <- hist_datasets[hist_datasets$hid==pos, 'name']
+      file_path <- file.path(gx_get_import_directory(create=create), file_id, name)
 
-        file_path <- file.path(gx_get_import_directory(create=create), file_id, name)
+      gx_download_file(encoded_dataset_id, file_path, force) # This is returned on last iteration
 
-        gx_download_file(encoded_dataset_id, file_path, force) # This is returned on last iteration
+    }
 
-      }
+    return(file_path)
+  } else {
+    message("The data from this collection doesn't exist outside of the collection in this history") # Need to look into this!
+    message("Please copy data into history first, then create a collection")
 
-      return(file_path)
+    return(NULL)
+  }
+}
 
-    } else {
-      message("The data from this collection doesn't exist outside of the collection in this history") # Need to look into this!
-      message("Please copy data into history first, then create a collection")
+#' gx_verify_collection
+#'
+#' @param file_d, ID number
+#' @param hist_datasets, Datasets from Galaxy history
+
+gx_verify_collection <- function(file_id, hist_datasets){
+
+  is_populdated <- hist_datasets[hist_datasets$hid == file_id, 'populated']
+
+  if(is_populdated){
+    count <- count <- hist_datasets[hist_datasets$hid == file_id, 'element_count'] # grab the # of elements the collection contains
+    start_pos <- file_id - count # Get the first position of the collection's data
+
+    if(start_pos > 0){ # Is it positive? yes, that means some data exists
+      # Now we need to check if the data is actually the data we think it is, how can we do this?
+      #   gx_list_history_datasets() doesn't give us any of this information
+      # Even if the collection exists last, we need its data to actually exist in the history, being hidden or visible.
+      return(start_pos)
+    } else { # No data exists before this collection
+      return(-1)
     }
   }
 }
