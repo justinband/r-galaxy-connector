@@ -273,7 +273,7 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
       message(paste0("dataset #", file_id, " does not exist, please try again"))
     }
   } else {
-    return file.path(gx_get_import_directory(), hid, "null_name") # use null_name because Pavian calls using dirname()
+    return(file.path(gx_get_import_directory(), hid, "null_name")) # use null_name because Pavian calls using dirname()
   }
 }
 
