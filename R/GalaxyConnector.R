@@ -250,26 +250,30 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
   check_url_and_key()
   hist_datasets <- gx_list_history_datasets()
 
-  if(0 < file_id && file_id <= nrow(hist_datasets)){
-    data_type <- hist_datasets[hist_datasets$hid == file_id, 'type'] # Check if it's a collection or not
+  encoded_dataset_id <- hist_datasets[hist_datasets$hid==file_id,'id'] # Let's get some info about the data!
+  name <- hist_datasets[hist_datasets$hid==file_id, 'name']
+  hid <- hist_datasets[hist_datasets$hid==file_id, 'hid']
 
-    if(data_type == 'collection'){
-      return(gx_get_collection(file_id, hist_datasets)) # get_collection calls gx_download_file which returns a file path
+  if(!dir.exists(file.path(gx_get_import_directory(create=create), hid))){ # If the directory doesn't exist then we download!
+    if(0 < file_id && file_id <= nrow(hist_datasets)){
+      data_type <- hist_datasets[hist_datasets$hid == file_id, 'type'] # Check if it's a collection or not
+
+      if(data_type == 'collection'){
+        return(gx_get_collection(file_id, hist_datasets)) # get_collection calls gx_download_file which returns a file path
+      } else {
+        file_path <- file.path(gx_get_import_directory(create=create), hid, name)
+        file_dir <- file.path(gx_get_import_directory(), hid)
+
+        if(!dir.exists(file_dir)) { dir.create(file_dir) }
+
+        gx_download_file(encoded_dataset_id, file_path, force)# gx_download_file returns a file path
+        return(file_path)
+      }
     } else {
-      encoded_dataset_id <- hist_datasets[hist_datasets$hid==file_id,'id']
-      name <- hist_datasets[hist_datasets$hid==file_id, 'name']
-      hid <- hist_datasets[hist_datasets$hid==file_id, 'hid']
-
-      file_path <- file.path(gx_get_import_directory(create=create), hid, name)
-      file_dir <- file.path(gx_get_import_directory(), hid)
-
-      if(!dir.exists(file_dir)) { dir.create(file_dir) }
-
-      gx_download_file(encoded_dataset_id, file_path, force)# gx_download_file returns a file path
-      return(file_path)
+      message(paste0("dataset #", file_id, " does not exist, please try again"))
     }
   } else {
-    message(paste0("dataset #", file_id, " does not exist, please try again"))
+    return file.path(gx_get_import_directory(), hid, "null_name") # use null_name because Pavian calls using dirname()
   }
 }
 
