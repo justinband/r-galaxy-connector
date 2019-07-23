@@ -9,9 +9,9 @@ pkg.env$GX_IMPORT_DIRECTORY <- Sys.getenv('GX_IMPORT_DIRECTORY', unset=NA)
 pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 
 # Check if curl dependency exists for jsonlite
-if(!require(Rcurl)){
-	install.packages('Rcurl')
-  library(Rcurl)
+if(!require(RCurl)){
+	install.packages('RCurl')
+  library(RCurl)
 }
 
 # If jsonlite isn't installed then let's install it!
