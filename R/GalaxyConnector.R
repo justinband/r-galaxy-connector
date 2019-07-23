@@ -9,9 +9,9 @@ pkg.env$GX_IMPORT_DIRECTORY <- Sys.getenv('GX_IMPORT_DIRECTORY', unset=NA)
 pkg.env$GX_TMP_DIRECTORY <- Sys.getenv('GX_TMP_DIRECTORY', unset=NA)
 
 # Check if curl dependency exists for jsonlite
-if(!require(curl)){
+if(!require(Rcurl)){
 	install.packages('curl')
-  library(curl)
+  library(Rcurl)
 }
 
 # If jsonlite isn't installed then let's install it!
@@ -125,7 +125,7 @@ gx_get_import_directory <- function(create=FALSE){
 #' @param IMPORT_DIRECTORY, path to use as import directory, default /tmp/<username>/galaxy_import
 #' @param create, default FALSE. If TRUE, try to create the directory if it doesn't exist
 #'
-#' @exoport
+#' @export
 
 gx_set_import_directory <- function(IMPORT_DIRECTORY=NULL,create=FALSE){
   if(is.null(IMPORT_DIRECTORY)){
@@ -192,13 +192,13 @@ gx_put <- function(filepath, filename='', file_type="auto"){
     "ajax_upload":"true"}',filename,file_type
   )
   params=list(
-      'files_0|file_data'=fileUpload(filepath),
+      'files_0|file_data'=RCurl::fileUpload(filepath),
       key=pkg.env$GX_API_KEY,
       tool_id='upload1',
       history_id=pkg.env$GX_HISTORY_ID,
       inputs=inputs_json)
 
-  response <- fromJSON(postForm(url, .params=params,
+  response <- jsonlite::fromJSON(postForm(url, .params=params,
            .opts = list(verbose = FALSE, header = TRUE)
            ))
   response$jobs
@@ -212,7 +212,7 @@ gx_put <- function(filepath, filename='', file_type="auto"){
 
 gx_list_history_datasets <- function(){
   check_url_and_key()
-  hist_datasets <- fromJSON(
+  hist_datasets <- jsonlite::fromJSON(
     paste0(pkg.env$GX_URL,'api/histories/',pkg.env$GX_HISTORY_ID,'/contents?key=',pkg.env$GX_API_KEY)
   )
   return(hist_datasets)
@@ -228,7 +228,7 @@ gx_list_history_datasets <- function(){
 
 gx_show_dataset <- function(dataset_encoded_id){
   check_url_and_key()
-  return(fromJSON(paste0(
+  return(jsonlite::fromJSON(paste0(
     pkg.env$GX_URL,
     'api/datasets/',
     dataset_encoded_id,
@@ -255,6 +255,7 @@ gx_get <- function(file_id,create=FALSE,force=FALSE){
   hid <- hist_datasets[hist_datasets$hid==file_id, 'hid']
 
   if(!dir.exists(file.path(gx_get_import_directory(create=create), hid))){ # If the directory doesn't exist then we download!
+
     if(0 < file_id && file_id <= nrow(hist_datasets)){
       data_type <- hist_datasets[hist_datasets$hid == file_id, 'type'] # Check if it's a collection or not
 
@@ -318,9 +319,11 @@ gx_get_collection <- function(file_id, hist_datasets, create=FALSE, force=FALSE)
 
 #' gx_verify_collection
 #'
-#' @param file_d, ID number
+#' Determines if a given ID is a collection
+#'
+#' @param file_id, ID number
 #' @param hist_datasets, Datasets from Galaxy history
-
+#'
 gx_verify_collection <- function(file_id, hist_datasets){
 
   is_populdated <- hist_datasets[hist_datasets$hid == file_id, 'populated']
@@ -415,7 +418,7 @@ gx_restore <- function(rdata_id,rhistory_id){
 
 gx_latest_history <- function(){
   check_url_and_key()
-  hist_obj <- fromJSON(
+  hist_obj <- jsonlite::fromJSON(
       paste0(pkg.env$GX_URL,'api/histories/most_recently_used?key=',pkg.env$GX_API_KEY)
   )
   return(hist_obj)
@@ -461,5 +464,5 @@ gx_current_history <- function(full=FALSE){
 
 gx_list_histories <- function(){
   check_url_and_key()
-  return( fromJSON(paste0(pkg.env$GX_URL,'api/histories?key=',pkg.env$GX_API_KEY) ))
+  return(jsonlite::fromJSON(paste0(pkg.env$GX_URL,'api/histories?key=',pkg.env$GX_API_KEY) ))
 }
