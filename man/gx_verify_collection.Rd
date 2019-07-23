@@ -7,10 +7,10 @@
 gx_verify_collection(file_id, hist_datasets)
 }
 \arguments{
-\item{hist_datasets, }{Datasets from Galaxy history}
+\item{file_id, }{ID number}
 
-\item{file_d, }{ID number}
+\item{hist_datasets, }{Datasets from Galaxy history}
 }
 \description{
-gx_verify_collection
+Determines if a given ID is a collection
 }
